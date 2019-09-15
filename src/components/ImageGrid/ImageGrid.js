@@ -1,26 +1,16 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
+import { loadImages } from '../../actions/index';
 import './styles.css';
 
-const key = '5f96323678d05ff0c4eb264ef184556868e303b32a2db88ecbf15746e6f25e02';
-
 class ImageGrid extends Component {
-    state = {
-        images: [],
-    };
-
     componentDidMount() {
-        fetch(`https://api.unsplash.com/photos/?client_id=${key}&per_page=28`)
-            .then(res => res.json())
-            .then(images => {
-                this.setState({
-                    images,
-                });
-            });
+        this.props.loadImages();
     }
 
     render() {
-        const { images } = this.state;
+        const { images, error } = this.props;
         return (
             <div className="content">
                 <section className="grid">
@@ -38,9 +28,32 @@ class ImageGrid extends Component {
                         </div>
                     ))}
                 </section>
+                <button
+                    style={{
+                        marginTop: 0,
+                        marginBottom: 0,
+                        marginLeft: 'auto',
+                        marginRight: 'auto',
+                    }}
+                    onClick={this.props.loadImages}
+                >
+                    Load Images
+                </button>
+                {error && <div className="error">{JSON.stringify(error)}</div>}
             </div>
         );
     }
 }
 
-export default ImageGrid;
+const mapStateToProps = ({ isLoading, images, error }) => {
+    return { isLoading, images, error };
+};
+
+const mapDispatchToProps = dispatch => {
+    return { loadImages: () => dispatch(loadImages()) };
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps,
+)(ImageGrid);
